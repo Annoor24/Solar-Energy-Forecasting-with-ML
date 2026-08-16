@@ -22,10 +22,10 @@ The core methodological question this project engages with — *does an explanat
 ## Repo structure
 
 ```
-notebooks/       Stage-by-stage Jupyter notebooks (data prep → feature engineering →
-                  model training → baseline comparison → SHAP analysis)
-figures/          SHAP summary plots and baseline comparison charts
-requirements.txt  Python dependencies
+notebooks/        Stage-by-stage Jupyter notebooks (data prep → feature engineering →
+                   model training → baseline comparison → SHAP analysis)
+plots/             SHAP summary plots and baseline comparison charts
+requirements.txt   Python dependencies
 ```
 
 ## Tech stack
