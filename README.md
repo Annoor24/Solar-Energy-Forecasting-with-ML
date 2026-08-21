@@ -17,8 +17,7 @@ Solar forecasting models are typically evaluated purely on accuracy, with little
 
 ## Why this matters beyond solar forecasting
 
-The core methodological question this project engages with — *does an explanation reflect the actual mechanism driving a model's output, or does it just sound plausible?* — is the same question at the heart of AI interpretability more broadly. Applying SHAP here meant treating feature attributions as testable claims about the model's behavior, not taking them at face value. That distinction, between a convincing explanation and a faithful one, is what pulled me toward alignment-adjacent interpretability research.
-
+The core methodological question this project engages with — *does an explanation reflect the actual mechanism driving a model's output, or does it just sound plausible?* — is the same question at the heart of AI interpretability more broadly. Applying SHAP here meant treating feature attributions as testable claims about the model's behavior, not taking them at face value. That distinction, between a convincing explanation and a faithful one, is what drives my interest in interpretability and rigorous model evaluation as a research direction.
 ## Repo structure
 
 ```
