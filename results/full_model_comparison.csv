@@ -1,0 +1,25 @@
+City,Model,RMSE (kW),MAE (kW),MAPE (%),nRMSE (%),nMAE (%),R2
+Kano,Standalone CNN,63.68,48.03,26.22,17.41,13.13,0.9273
+Kano,Standalone LSTM,29.27,16.54,8.45,8.0,4.52,0.9846
+Kano,CNN-LSTM (uni-directional),47.12,35.86,32.21,12.89,9.81,0.9602
+Kano,Standalone XGBoost,29.81,17.08,11.3,8.15,4.67,0.9841
+Kano,CNN-biLSTM (Stage 4),37.16,26.0,18.79,10.16,7.11,0.9752
+Kano,Proposed Hybrid (CNN-biLSTM + XGBoost),30.55,17.98,11.59,8.35,4.92,0.9833
+Kano,Hybrid v2 (Enhanced Features),30.52,17.92,11.66,8.35,4.9,0.9833
+Kano,Hybrid v3 (Interactions + Tuned),30.19,17.31,10.3,8.26,4.73,0.9836
+Maiduguri,Standalone CNN,71.5,58.47,25.52,19.77,16.17,0.9071
+Maiduguri,Standalone LSTM,34.67,22.21,11.12,9.59,6.14,0.9781
+Maiduguri,CNN-LSTM (uni-directional),56.86,44.4,29.94,15.72,12.28,0.9412
+Maiduguri,Standalone XGBoost,33.72,19.63,17.93,9.32,5.43,0.9793
+Maiduguri,CNN-biLSTM (Stage 4),54.17,41.49,46.29,14.98,11.47,0.9467
+Maiduguri,Proposed Hybrid (CNN-biLSTM + XGBoost),34.11,20.07,13.89,9.43,5.55,0.9788
+Maiduguri,Hybrid v2 (Enhanced Features),34.13,20.07,16.39,9.44,5.55,0.9788
+Maiduguri,Hybrid v3 (Interactions + Tuned),33.58,19.23,14.79,9.29,5.32,0.9795
+Abuja,Standalone CNN,61.12,42.38,26.14,18.28,12.68,0.926
+Abuja,Standalone LSTM,31.13,19.2,10.87,9.31,5.74,0.9808
+Abuja,CNN-LSTM (uni-directional),43.03,31.02,18.91,12.87,9.28,0.9633
+Abuja,Standalone XGBoost,31.12,18.87,12.4,9.31,5.64,0.9808
+Abuja,CNN-biLSTM (Stage 4),47.26,35.69,31.08,14.13,10.67,0.9558
+Abuja,Proposed Hybrid (CNN-biLSTM + XGBoost),31.92,19.94,13.74,9.55,5.96,0.9798
+Abuja,Hybrid v2 (Enhanced Features),31.76,19.85,13.41,9.5,5.94,0.98
+Abuja,Hybrid v3 (Interactions + Tuned),31.51,19.45,12.31,9.42,5.82,0.9803

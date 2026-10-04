@@ -5,31 +5,78 @@ Final-year Electrical Engineering capstone project (Ahmadu Bello University, Zar
 
 ## What this project does
 
-Solar forecasting models are typically evaluated purely on accuracy, with little scrutiny of *why* they produce the predictions they do. This project builds a hybrid deep learning + gradient boosting pipeline for the forecasting task itself, then uses SHAP (SHapley Additive exPlanations) to open up the model and identify which features are actually driving its predictions — treating interpretability as a first-class part of the pipeline rather than an afterthought.
+Solar forecasting models are typically evaluated purely on accuracy, with little scrutiny of *why* they produce the predictions they do. This project builds a hybrid deep learning + gradient boosting pipeline for the forecasting task, benchmarks it against several baselines, and then uses SHAP (SHapley Additive exPlanations) to identify which features actually drive its predictions.
 
-**Architecture:** A CNN-BiLSTM network processes sequential weather/irradiance data (GHI, DHI, clearness index, temperature, humidity, wind speed) to produce an initial forecast, which is then passed as an additional feature into an XGBoost model that produces the final, corrected prediction.
+**Architecture:** A CNN-BiLSTM network processes a 24-hour window of weather/irradiance data to forecast the next hour of PV power. An XGBoost model then learns the CNN-BiLSTM's residual errors from meta-features (the last-timestep inputs, the CNN-BiLSTM prediction and a latent representation), and the final prediction is the CNN-BiLSTM output plus the predicted correction. The final model (**Hybrid v3**) adds rolling mean/std features and is tuned with Optuna.
 
-## Key results
+**Target:** Hourly PV power is *simulated* for a 1 MW farm from NASA POWER irradiance and temperature (GHI × area × efficiency × temperature factor). It is not measured plant output.
 
-- The hybrid model was benchmarked against 5 baselines (standalone CNN, standalone LSTM, unidirectional CNN-LSTM, standalone XGBoost, CNN-BiLSTM) across all three cities using a daytime-masked metric suite (RMSE, MAE, MAPE, R², nRMSE, nMAE).
-- SHAP TreeExplainer analysis on the XGBoost stage identified **GHI (Global Horizontal Irradiance)** and the **CNN-BiLSTM's own output** as the dominant drivers of the final prediction across all three cities — consistent with physical intuition, but confirmed empirically rather than assumed.
-- Data was split strictly chronologically (2016–2021 train / 2022 validation / 2023 test) to avoid leakage and reflect realistic deployment conditions.
+## Pipeline
 
-## Why this matters beyond solar forecasting
+| Stage | Notebook | What it does |
+|---|---|---|
+| 1 | `Stage1_data_exploration` | First look at the raw NASA POWER CSVs |
+| 2 | `Stage2_Data_Loading_Exploration_Cleaning` | Loads yearly files, cleans the -999 sentinels, exploratory plots |
+| 3 | `Stage3_Feature_Engineering_Normalisation` | PV power simulation, cyclical time features, lags (`PV_Power_Lag1`, `PV_Power_Lag24`, `GHI_Lag1`), chronological split, MinMax scaling (fit on train only), 24-hour sequences |
+| 4 | `Stage4_CNN_biLSTM_Model` | Per-city CNN-BiLSTM training |
+| 5 | `Stage5_XGBoost_Residual_Correction` | XGBoost residual correction on top of the CNN-BiLSTM |
+| 6 | `Stage6_SHAP_Explainability_Analysis`, `Stage6_v2` | SHAP TreeExplainer analysis (bar, beeswarm, dependence, waterfall plots) |
+| 7 | `Stage7` | Baselines (CNN, LSTM, CNN-LSTM, standalone XGBoost) with multi-run averaging |
+| 7b | `Stage7_Optuna_Tuning` | Hybrid v2/v3 feature sets and Optuna tuning of the hybrid and standalone XGBoost |
+| 8 | `Stage8_Final_Reporting` | Final 6-model comparison, composite ranking, scatter and RMSE charts |
 
-The core methodological question this project engages with — *does an explanation reflect the actual mechanism driving a model's output, or does it just sound plausible?* — is the same question at the heart of AI interpretability more broadly. Applying SHAP here meant treating feature attributions as testable claims about the model's behavior, not taking them at face value. That distinction, between a convincing explanation and a faithful one, is what drives my interest in interpretability and rigorous model evaluation as a research direction.
+Data was split strictly chronologically (2016–2021 train / 2022 validation / 2023 test) to avoid leakage. All metrics are computed on daytime hours only (PV power > 0).
+
+## Results (2023 test set, daytime only)
+
+RMSE and MAE are in kW for the simulated 1 MW farm (lower is better). Full tables, including the other metrics and run-to-run standard deviations, are in [`results/FINAL_reported_comparison.csv`](results/FINAL_reported_comparison.csv).
+
+| City | Model | RMSE | MAE | MAPE (%) | R² |
+|---|---|---|---|---|---|
+| Kano | Standalone XGBoost | **29.81** | 17.08 | 11.30 | **0.984** |
+| Kano | Hybrid v3 (Optuna) | 30.25 | **16.89** | **9.14** | 0.984 |
+| Kano | CNN-BiLSTM (base) | 37.16 | 26.00 | 18.79 | 0.975 |
+| Kano | LSTM (5-run avg) | 32.75 | 21.24 | 11.52 | 0.981 |
+| Maiduguri | Standalone XGBoost | 33.72 | 19.63 | 17.93 | 0.979 |
+| Maiduguri | Hybrid v3 (Optuna) | **33.33** | **18.80** | **13.87** | **0.980** |
+| Maiduguri | CNN-BiLSTM (base) | 54.17 | 41.49 | 46.29 | 0.947 |
+| Maiduguri | LSTM (5-run avg) | 40.34 | 27.16 | 19.93 | 0.970 |
+| Abuja | Standalone XGBoost | 31.12 | **18.87** | 12.40 | 0.981 |
+| Abuja | Hybrid v3 (Optuna) | **31.06** | 18.99 | **11.76** | 0.981 |
+| Abuja | CNN-BiLSTM (base) | 47.26 | 35.69 | 31.08 | 0.956 |
+| Abuja | LSTM (5-run avg) | 33.90 | 22.11 | 15.20 | 0.977 |
+
+Standalone CNN and unidirectional CNN-LSTM were weaker still (see the CSV).
+
+**Key findings**
+
+- The hybrid substantially improves on its CNN-BiLSTM base model in every city (RMSE reduced by roughly 19–38%).
+- Against a tuned standalone XGBoost the hybrid is essentially **on par**: RMSE is marginally worse in Kano and marginally better in Maiduguri and Abuja, while MAPE is better in all three cities. The differences in RMSE are small.
+- The very high R² values should be read with care: the target is simulated from the same irradiance inputs, and lagged PV power is among the features, so the task is easier than forecasting measured plant output.
+- SHAP analysis of the XGBoost stage identifies **GHI** and the **CNN-BiLSTM's own prediction** as the dominant drivers of the final prediction in all three cities, consistent with physical intuition (see `plots/shap_*` and `results/shap_importance_summary.csv`).
+
 ## Repo structure
 
 ```
-notebooks/        Stage-by-stage Jupyter notebooks (data prep → feature engineering →
-                   model training → baseline comparison → SHAP analysis)
-plots/             SHAP summary plots and baseline comparison charts
-requirements.txt   Python dependencies
+data/             NASA POWER hourly CSVs per city and year (Abuja, Kano, Maiduguri; 2016–2023)
+notebooks/        Stage-by-stage Jupyter notebooks (see Pipeline above)
+models/           Trained CNN-BiLSTM (.keras) and XGBoost (.pkl) models
+plots/            EDA, training, SHAP and model comparison figures
+results/          Metric tables (CSV) and cleaned per-city data
+requirements.txt  Python dependencies
 ```
+
+`data/`, `models/`, the large intermediate files (`*.npy` sequences and predictions under `results/`) and Jupyter checkpoints are git-ignored, so they exist locally but are not in this repository. The models and intermediates are regenerated by running the notebooks in order.
+
+## Reproducing
+
+1. `pip install -r requirements.txt`
+2. Download the NASA POWER hourly data for each city and year (2016–2023) from [NASA POWER](https://power.larc.nasa.gov/) and save it as `data/<City>/<City>_<year>.csv`.
+3. Run the notebooks in stage order (Stage 1 → 8). Stages 3 onward write the sequences, scalers, models and metric tables used by later stages.
 
 ## Tech stack
 
-Python 3.13, TensorFlow, XGBoost, SHAP, scikit-learn, pandas, Jupyter Notebook
+Python 3.13, TensorFlow, XGBoost, SHAP, Optuna, scikit-learn, pandas, Jupyter Notebook
 
 ## Data source
 
@@ -37,4 +84,4 @@ Python 3.13, TensorFlow, XGBoost, SHAP, scikit-learn, pandas, Jupyter Notebook
 
 ## Status
 
-Final-stage baseline comparison and reporting in progress as of August 2026.
+All eight stages are complete, including Optuna tuning and final reporting.

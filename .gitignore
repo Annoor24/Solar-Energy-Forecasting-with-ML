@@ -1,0 +1,12 @@
+.ipynb_checkpoints/
+*.npy
+results/sequences/
+data/
+models/
+__pycache__/
+.venv/
+.DS_Store
+branch_structure.json
+temp_auto_push.bat
+temp_interactive_push.bat
+.gitignore

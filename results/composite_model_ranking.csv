@@ -1,0 +1,25 @@
+City,Model,Composite_Rank
+Kano,Standalone LSTM,1.0
+Kano,Standalone XGBoost,2.1666666666666665
+Kano,Hybrid v3 (Interactions + Tuned),2.8333333333333335
+Kano,Hybrid v2 (Enhanced Features),4.333333333333333
+Kano,Proposed Hybrid (CNN-biLSTM + XGBoost),4.666666666666667
+Kano,CNN-biLSTM (Stage 4),6.0
+Kano,CNN-LSTM (uni-directional),7.166666666666667
+Kano,Standalone CNN,7.833333333333333
+Maiduguri,Hybrid v3 (Interactions + Tuned),1.3333333333333333
+Maiduguri,Standalone XGBoost,2.5
+Maiduguri,Proposed Hybrid (CNN-biLSTM + XGBoost),3.0833333333333335
+Maiduguri,Hybrid v2 (Enhanced Features),3.75
+Maiduguri,Standalone LSTM,4.333333333333333
+Maiduguri,CNN-biLSTM (Stage 4),6.333333333333333
+Maiduguri,CNN-LSTM (uni-directional),7.0
+Maiduguri,Standalone CNN,7.666666666666667
+Abuja,Standalone XGBoost,1.5
+Abuja,Standalone LSTM,1.6666666666666667
+Abuja,Hybrid v3 (Interactions + Tuned),2.8333333333333335
+Abuja,Hybrid v2 (Enhanced Features),4.0
+Abuja,Proposed Hybrid (CNN-biLSTM + XGBoost),5.0
+Abuja,CNN-LSTM (uni-directional),6.0
+Abuja,CNN-biLSTM (Stage 4),7.166666666666667
+Abuja,Standalone CNN,7.833333333333333
